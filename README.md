@@ -1,8 +1,8 @@
 # AI Token Saver Guide
 
-> 一站式记录 RTK + Caveman + 9Router 的安装和配置，主推 Kilo Code（OpenCode 衍生版）
-
-每次重装系统后，照着这个仓库走一遍，10 分钟恢复全量 AI Token 压缩环境。
+> 一站式记录 RTK + Caveman + 9Router 的安装和配置，主推 KiloCode（OpenCode 衍生版）
+>
+> 每次 重装系统后，照着这个仓库走一遍，10 分钟恢复全量 AI Token 压缩环境。
 
 ---
 
@@ -21,9 +21,9 @@
 │                         AI 编程工具                               │
 └─────────────────────────────┬───────────────────────────────────┘
                               │
-                              ▼ [1] RTK 压缩命令输出
+                              ▼ [1] RTK Plugin Hook 自动改写命令
 ┌─────────────────────────────────────────────────────────────────┐
-│  rtk git status → 200 tokens (原 2000 tokens)                  │
+│  git status → rtk git status → 200 tokens (原 2000 tokens)     │
 └─────────────────────────────┬───────────────────────────────────┘
                               │ tool_result
                               ▼ [2] 9Router 路由 + 二次压缩
@@ -43,11 +43,25 @@
 
 ---
 
+## ⭐ KiloCode 用户必读
+
+**唯一可靠方案**：使用 `@opencode-ai/plugin` 的 `tool.execute.before` Hook 自动改写命令。
+
+| 方案 | 可靠性 | 适用模型 |
+|------|:------:|----------|
+| **Plugin Hook** | ✅ 100% | 所有模型 |
+| 规则文件 / instructions | ❌ ~10% | 仅 Gemini |
+
+👉 **[完整插件配置教程](docs/kilocode/rtk-plugin-tutorial.md)**
+
+---
+
 ## 快速入口
 
 | 我想... | 看这里 |
 |---------|--------|
-| 为 Kilo Code 安装完整三件套 | [docs/kilocode/full-setup.md](docs/kilocode/full-setup.md) |
+| ⭐ 为 KiloCode 配置 RTK 自动改写 | [docs/kilocode/rtk-plugin-tutorial.md](docs/kilocode/rtk-plugin-tutorial.md) |
+| 为 KiloCode 安装完整三件套 | [docs/kilocode/full-setup.md](docs/kilocode/full-setup.md) |
 | 了解 RTK 支持哪些命令 | [docs/rtk/overview.md](docs/rtk/overview.md) |
 | 了解 Caveman 压缩模式 | [docs/caveman/overview.md](docs/caveman/overview.md) |
 | 了解 9Router 功能 | [docs/9router/overview.md](docs/9router/overview.md) |
@@ -59,14 +73,15 @@
 
 ## 平台支持
 
-| 平台 | RTK 自动 Hook | RTK 手动模式 | Caveman | 9Router |
+| 平台 | RTK 自动 Hook | RTK Plugin (KiloCode) | Caveman | 9Router |
 |------|:---:|:---:|:---:|:---:|
 | **Windows 原生** | ✅（Git Bash） | ✅ | ✅ | ✅ |
 | **WSL** | ✅ | ✅ | ✅ | ✅ |
 | **macOS** | ✅ | ✅ | ✅ | ✅ |
 | **Linux** | ✅ | ✅ | ✅ | ✅ |
 
-> ⚠️ Windows 原生实测：RTK hook 自动改写在 **Git Bash** 环境下完全可用，不需要 WSL。
+> ⚠️ Windows 原生实测：RTK hook 自动改写在 Git Bash 环境下完全可用，不需要 WSL。
+> KiloCode Plugin Hook 在所有平台均可工作。
 
 ---
 
@@ -74,15 +89,30 @@
 
 ### Windows (PowerShell)
 ```powershell
+# RTK
+$url = "https://github.com/rtk-ai/rtk/releases/latest/download/rtk-x86_64-pc-windows-msvc.zip"
+Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\rtk.zip"
+Expand-Archive -Path "$env:TEMP\rtk.zip" -DestinationPath "$env:USERPROFILE\tools\rtk" -Force
+[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$env:USERPROFILE\tools\rtk", "User")
+
+# Caveman
 irm https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.ps1 | iex
+
+# 9Router
+npm install -g 9router
 ```
 
 ### macOS / Linux / WSL
 ```bash
-curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
-```
+# RTK
+curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
 
-> RTK Windows 预编译二进制详见 [docs/rtk/install.md](docs/rtk/install.md)
+# Caveman
+curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
+
+# 9Router
+npm install -g 9router
+```
 
 ---
 
@@ -90,26 +120,31 @@ curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.
 
 ```
 ai-token-saver-guide/
-├── README.md                     # 你在这里
+├── README.md                          # 你在这里
 ├── docs/
-│   ├── kilocode/                 # Kilo Code 专属指南
-│   │   ├── rtk.md
+│   ├── kilocode/
+│   │   ├── rtk-plugin-tutorial.md     # ⭐ 插件配置完整教程
+│   │   ├── rtk.md                     # RTK 规则文件方式（补充）
 │   │   ├── caveman.md
-│   │   └── full-setup.md         # 完整流程
+│   │   └── full-setup.md              # 完整流程
 │   ├── 9router/
-│   │   ├── overview.md           # 功能介绍 ⭐
+│   │   ├── overview.md
 │   │   └── install.md
 │   ├── rtk/
-│   │   ├── overview.md           # 功能介绍 + 支持命令列表 ⭐
+│   │   ├── overview.md
 │   │   └── install.md
 │   └── caveman/
-│       ├── overview.md           # 功能介绍 + 压缩模式 ⭐
+│       ├── overview.md
 │       └── install.md
-├── scripts/
-│   ├── windows/install-all.ps1
-│   └── unix/install-all.sh
-└── configs/
-    └── kilocode/                 # 规则文件示例
+├── configs/
+│   └── kilocode/
+│       ├── rtk-rules.md               # 规则文件示例
+│       └── plugins/rtk-kilo/          # ⭐ 插件源码（可直接复制使用）
+│           ├── index.ts
+│           └── package.json
+└── scripts/
+    ├── windows/install-all.ps1
+    └── unix/install-all.sh
 ```
 
 ---
