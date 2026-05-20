@@ -21,8 +21,8 @@ export default {
     // Check rtk availability with absolute path (BunShell may not have rtk in PATH)
     try {
       const ver = await $`${RTK_EXE} --version`.quiet().text()
-      // 只保留这条短消息，KiloCode 会渲染为左下角状态标识
-      console.log("[rtk-kilo] " + ver.trim())
+      // 启动时渲染到左下角的状态消息（只在 server 初始化阶段输出，运行时不输出）
+      console.log("[rtk-kilo] " + ver.trim() + " · 自动压缩命令输出 · 节省 60-90% Token")
     } catch (e) {
       console.warn("[rtk-kilo] rtk not found at", RTK_EXE, "— plugin disabled")
       return {}
