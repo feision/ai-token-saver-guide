@@ -579,6 +579,61 @@ if (SKIP_PATTERNS.some(p => p.test(command))) return
 
 ---
 
+## 其他 AI 工具兼容性
+
+| 工具 | RTK 支持 | 实现方式 | 难度 |
+|------|---------|---------|------|
+| **KiloCode** | ✅ 100% | Plugin Hook (`tool.execute.before`) | 本教程 |
+| **OpenCode** | ✅ 100% | 同上，改路径即可 | ⭐ 简单 |
+| **Claude Code** | ✅ 原生支持 | `rtk init -g` 自动注册 | 一键搞定 |
+| **Codex CLI** | ❌ 暂不支持 | 无插件/钩子系统 | — |
+| **Cursor** | ✅ 支持 | Rules + 自定义指令 | ⚡ 中等 |
+| **Windsurf** | ✅ 支持 | Rules + 自定义指令 | ⚡ 中等 |
+
+### OpenCode
+
+OpenCode 与 KiloCode 共享同一套插件系统，只需复制插件文件并改路径：
+
+```bash
+# 1. 复制插件到 OpenCode 配置目录
+cp -r ~/.config/kilo/plugins/rtk-kilo ~/.config/opencode/plugins/rtk-kilo
+
+# 2. 编辑 ~/.config/opencode/config.json
+```
+
+```json
+{
+  "plugin": ["file:///C:/Users/Administrator/.config/opencode/plugins/rtk-kilo/index.ts"]
+}
+```
+
+> 插件代码 **完全不用改**，与 KiloCode 100% 兼容。
+
+### Claude Code（最简单）
+
+RTK 官方原生支持 Claude Code：
+
+```bash
+# 一键注册（已执行过则跳过）
+rtk init -g
+
+# 验证 hook 是否注册成功
+cat ~/.claude/settings.json
+# 应该看到 PreToolUse 钩子引用 RTK
+```
+
+`rtk init -g` 会自动在 `~/.claude/settings.json` 中注册 `PreToolUse` hook，所有 Shell 命令执行前都会自动走 `rtk rewrite`。无需写任何插件或规则文件。
+
+### Codex CLI（不支持）
+
+OpenAI 的 Codex CLI 运行在容器沙箱中，没有插件机制或钩子系统，无法在代码层面拦截命令执行。这是工具架构限制，目前没有办法让 Codex CLI 自动使用 RTK。
+
+### Cursor / Windsurf
+
+这些 IDE 类 AI 工具通常通过 Rules 或 Custom Instructions 来提示 AI 使用 RTK。效果取决于模型，非 Gemini 模型可能不遵守。部分工具支持开箱即用的 CLI 拦截，但需要自行测试。
+
+---
+
 ## 总结
 
 | 步骤 | 操作 | 关键点 |

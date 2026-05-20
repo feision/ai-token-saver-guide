@@ -85,6 +85,19 @@
 
 ---
 
+## AI 工具兼容性
+
+| 工具 | RTK 自动改写 | 实现方式 | 详细教程 |
+|------|:-----------:|---------|:--------:|
+| **KiloCode** | ✅ 100% | Plugin Hook (`tool.execute.before`) | [教程](docs/kilocode/rtk-plugin-tutorial.md) |
+| **OpenCode** | ✅ 100% | 同上，改路径即可 | [教程](docs/kilocode/rtk-plugin-tutorial.md#opencode) |
+| **Claude Code** | ✅ 原生支持 | `rtk init -g` 一键注册 | 无需额外配置 |
+| **Cursor** | ✅ 支持 | Rules + 自定义指令 | 见插件教程 |
+| **Windsurf** | ✅ 支持 | Rules + 自定义指令 | 见插件教程 |
+| **Codex CLI** | ❌ 不支持 | 无插件/钩子系统 | — |
+
+---
+
 ## 一键安装
 
 ### Windows (PowerShell)
