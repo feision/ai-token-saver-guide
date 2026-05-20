@@ -120,11 +120,10 @@ export default {
 
   server: async ({ $ }) => {
     // 启动时检查 rtk 是否可用
-    let rtkFound = false
     try {
       const ver = await $`${RTK_EXE} --version`.quiet().text()
-      console.log("[rtk-kilo] found:", ver.trim())
-      rtkFound = true
+      // 启动时渲染到左下角的状态消息（只在 server 初始化阶段输出，运行时不输出）
+      console.log("[rtk-kilo] " + ver.trim() + " · 自动压缩命令输出 · 节省 60-90% Token")
     } catch (e) {
       console.warn("[rtk-kilo] rtk not found at", RTK_EXE, "— plugin disabled")
       return {}   // rtk 不存在时安全退出，不影响 KiloCode 正常运行
@@ -350,6 +349,85 @@ rtk gain    # 应显示非零的节省统计
 
 > **注意**：规则文件应尽量简短（< 500 tokens），避免注意力稀释。
 > 越长的 system prompt 中，每条规则被遵守的概率越低。
+
+---
+
+## 自定义：启动状态消息
+
+KiloCode 启动时会将插件的**首次 `console.log`** 渲染为左下角状态标识。你可以自定义显示内容。
+
+### 修改位置
+
+编辑 `~/.config/kilo/plugins/rtk-kilo/index.ts`，找到 `server` 函数中的这行：
+
+```typescript
+console.log("[rtk-kilo] " + ver.trim() + " · 自动压缩命令输出 · 节省 60-90% Token")
+```
+
+### 自定义示例
+
+```typescript
+// 最简版（只显示版本）
+console.log("[rtk-kilo] " + ver.trim())
+
+// 带功能描述（推荐）
+console.log("[rtk-kilo] " + ver.trim() + " · 自动压缩命令输出 · 节省 60-90% Token")
+
+// 中文风格
+console.log("[rtk-kilo] " + ver.trim() + " · 运行中 · 持续为你压缩命令 · 省 Token")
+
+// 极简
+console.log("[rtk-kilo] RTK " + ver.trim())
+```
+
+### ⚠️ 关键规则
+
+| 规则 | 说明 |
+|------|------|
+| ✅ 只能在 `server` 初始化阶段用 `console.log` | 这条消息渲染到左下角状态栏 |
+| ❌ 不能在 `tool.execute.before` 等 hook 中用 `console.log` | 会渲染到聊天区域，变成输入框 overlay 文字 |
+| ❌ 不能在 hook 中定时输出 `rtk gain` 统计 | 同上，overlay 无法用 Backspace/Delete 清除 |
+
+**为什么？** KiloCode 只把插件启动时的 `console.log` 视为状态信息渲染到左下角；hook 执行期间的 `console.log` 会进入聊天消息流，变成半透明浮层覆盖在输入框上方。
+
+---
+
+## 自定义：去除对话框 Overlay 文字
+
+如果你看到输入框上方出现类似 `git status → rtk git status` 的半透明文字，无法用 Backspace/Delete 清除，这是因为插件 hook 中有 `console.log` 输出。
+
+### 原因
+
+```typescript
+// ❌ 这行会导致 overlay
+"tool.execute.before": async (input, output) => {
+  // ...
+  console.log("[rtk-kilo]", command, "→", trimmed)   // ← 罪魁祸首
+}
+```
+
+### 解决
+
+确保 `tool.execute.before` hook 内**没有任何 `console.log`**。正确写法：
+
+```typescript
+"tool.execute.before": async (input, output) => {
+  // ... 拦截逻辑 ...
+  if (trimmed && trimmed !== command) {
+    args.command = trimmed
+    // 静默改写，不输出任何日志
+  }
+}
+```
+
+### 如果已经出现 overlay
+
+1. 修改 `index.ts`，移除 hook 中的 `console.log`
+2. 重启 KiloCode
+3. overlay 会在新会话中消失
+
+> 已有的 overlay 无法在当前会话中清除（Backspace/Delete 对浮层无效），
+> 只能重启 KiloCode 开新会话。
 
 ---
 
