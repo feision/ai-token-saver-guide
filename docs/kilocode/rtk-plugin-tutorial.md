@@ -161,7 +161,7 @@ export default {
           const trimmed = rewritten.trim()
           if (trimmed && trimmed !== command) {
             args.command = trimmed
-            console.log("[rtk-kilo]", command, "→", trimmed)
+            // 不用 console.log 输出改写日志，避免 KiloCode 渲染为输入框 overlay 文字
           }
         } catch {
           // rtk rewrite 失败时透传原命令，不影响正常执行
