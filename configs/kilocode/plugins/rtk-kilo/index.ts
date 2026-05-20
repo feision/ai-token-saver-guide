@@ -19,37 +19,13 @@ export default {
 
   server: async ({ $ }) => {
     // Check rtk availability with absolute path (BunShell may not have rtk in PATH)
-    let rtkFound = false
-    let rtkVer = ""
     try {
       const ver = await $`${RTK_EXE} --version`.quiet().text()
-      rtkVer = ver.trim()
-      rtkFound = true
+      // 只保留这条短消息，KiloCode 会渲染为左下角状态标识
+      console.log("[rtk-kilo] " + ver.trim())
     } catch (e) {
       console.warn("[rtk-kilo] rtk not found at", RTK_EXE, "— plugin disabled")
       return {}
-    }
-
-    // 启动状态消息
-    console.log(`[rtk-kilo] ✅ ${rtkVer} 运行中 · 自动压缩命令输出 · 节省 60-90% Token`)
-
-    // 每 5 次改写后刷新一次 gain 统计到状态栏
-    let rewriteCount = 0
-    const GAIN_REFRESH_INTERVAL = 5
-
-    const refreshGain = async () => {
-      try {
-        const gain = await $`${RTK_EXE} gain`.quiet().nothrow().text()
-        // 解析 "Tokens saved:      371 (41.7%)" 这行
-        const match = gain.match(/Tokens saved:\s+(\d+)\s+\(([\d.]+)%\)/)
-        if (match) {
-          const saved = match[1]
-          const pct = match[2]
-          console.log(`[rtk-kilo] 📊 已节省 ${saved} tokens (${pct}%) · ${rtkVer}`)
-        }
-      } catch {
-        // gain 读取失败不影响功能
-      }
     }
 
     return {
@@ -83,11 +59,7 @@ export default {
           const trimmed = rewritten.trim()
           if (trimmed && trimmed !== command) {
             args.command = trimmed
-            rewriteCount++
-            // 每 N 次改写刷新一次 gain 统计
-            if (rewriteCount % GAIN_REFRESH_INTERVAL === 0) {
-              refreshGain()
-            }
+            // 静默改写，不输出任何日志
           }
         } catch {
           // rtk rewrite failed — pass through unchanged
