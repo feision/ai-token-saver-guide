@@ -10,6 +10,7 @@
 |------|------|------|:----:|
 | [shell-wrapping-fix-report.md](./shell-wrapping-fix-report.md) | 2026-05-25 | Bash 环境 `cd /d` 语法不兼容 + tsup 入口路径硬编码 | ✅ |
 | [fix-reports-index.md](./fix-reports-index.md) | 2026-05-28 | 本索引文件，方便速查 | ✅ |
+| [grep-hook-optimization-report.md](./grep-hook-optimization-report.md) | 2026-06-10 | rtk grep 压缩参数优化 + hook claude 强制拦截 | ✅ |
 | [windows-fix-report.md](./windows-fix-report.md) | 2026-05-26 | Windows 内置命令（move/copy/del）被 rtk 识别为不存在 | ✅ |
 | [ps-routing-fix-report.md](./ps-routing-fix-report.md) | 2026-05-26 | PowerShell 命令（Get-Location 等）被 `.bashrc` 包装拦截 | ✅ |
 | [ps-cmdlet-fix-report.md](./ps-cmdlet-fix-report.md) | 2026-05-28 | PowerShell cmdlet（Select-Object/Where-Object）被路由到 Bash | ✅ |

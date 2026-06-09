@@ -52,6 +52,11 @@ Expand-Archive -Path "$env:TEMP\rtk.zip" -DestinationPath "$env:USERPROFILE\tool
     [Environment]::GetEnvironmentVariable("Path", "User") + ";$env:USERPROFILE\tools\rtk",
     "User"
 )
+
+# 4. ⚠️ 设置 Git 默认编辑器（Windows 特有）
+# RTK 内部默认使用 vim，但 Windows 原生系统通常没有 vim。
+# 不设置会导致 git rebase -i 等命令报错。
+git config --global core.editor "notepad"
 ```
 
 ### macOS / Linux / WSL
@@ -432,6 +437,18 @@ console.log("[rtk-kilo] RTK " + ver.trim())
 ---
 
 ## 故障排查
+
+### 问题：`Vim: Warning: Output is not to a terminal` 报错
+
+**原因**：RTK 内部默认设置 `GIT_EDITOR=vim`，但 Windows 原生系统没有 vim。
+
+**解决**：设置 git 默认编辑器
+
+```powershell
+git config --global core.editor "notepad"
+# 或使用 VS Code
+git config --global core.editor "code --wait"
+```
 
 ### 问题：插件没有加载
 

@@ -108,6 +108,11 @@ Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\rtk.zip"
 Expand-Archive -Path "$env:TEMP\rtk.zip" -DestinationPath "$env:USERPROFILE\tools\rtk" -Force
 [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$env:USERPROFILE\tools\rtk", "User")
 
+# ⚠️ Windows 特有配置：设置 Git 默认编辑器
+# RTK 内部默认使用 vim，但 Windows 原生系统通常没有 vim。
+# 设置 core.editor 可以避免 git rebase -i 等命令报错。
+git config --global core.editor "notepad"
+
 # Caveman
 irm https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.ps1 | iex
 
