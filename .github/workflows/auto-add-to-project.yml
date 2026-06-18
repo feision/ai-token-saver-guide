@@ -1,0 +1,13 @@
+name: Auto-add issues to All Issues Project
+
+on:
+  issues:
+    types: [opened, reopened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add issue to project
+        run: |
+          curl -L -X POST -H "Authorization: Bearer ${{ secrets.PROJECT_TOKEN }}" -H "Content-Type: application/json" -d '{ "query": "mutation { addProjectV2ItemById(input: { projectId: \"PVT_kwHOB-QsR84BbD4z\", contentId: \"${{ github.event.issue.node_id }}\" }) { item { id } } }" }' https://api.github.com/graphql
